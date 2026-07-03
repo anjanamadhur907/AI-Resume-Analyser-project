@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SignIn</title>
+    {%include "__bootstrap.html"%}
+</head>
+<body class="bg-dark">
+    {%include "__navigation.html"%}
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+
+    <div class="card shadow p-4 bg-secondary text-light" style="width: 28rem;">
+
+        <h2 class="text-center mb-4 ">Sign In</h2>
+
+        <form action="/signin" method="POST">
+
+            <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <input
+                    type="email"
+                    class="form-control"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    Sign In
+                </button>
+            </div>
+
+        </form>
+
+        <div class="text-center mt-3">
+            Create New Account
+            <a href="/signup" class="text-decoration-none text-primary">SignUp</a>
+        </div>
+    </div>
+    </div>
+</body>
+</html>

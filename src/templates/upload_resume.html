@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Resume</title>
+    {%include "__bootstrap.html"%}
+</head>
+
+<body class="bg-dark">
+{%include "__navigation.html"%}
+
+<h2 class="text-light d-flex justify-content-center align-items-center">Upload Resume</h2>
+
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="card shadow p-4 bg-secondary text-light" style="width: 28rem;">
+    <form
+    action="/resume/upload"
+    method="POST"
+    enctype="multipart/form-data"
+>
+
+<input
+    type="file"
+    name="file"
+    accept=".pdf"
+    required
+>
+
+<button class="btn btn-primary" type="submit">
+
+Upload
+
+</button>
+
+</form>
+</div>
+</div>
+
+</body>
+</html>

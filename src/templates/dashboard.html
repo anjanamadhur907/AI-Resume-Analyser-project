@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Dashboard</title>
+
+{% include "__bootstrap.html" %}
+
+</head>
+
+<body class="bg-light">
+
+{% include "__navigation.html" %}
+
+<div class="container mt-5">
+
+<h2>
+
+Welcome {{ user.name }}
+
+</h2>
+
+<table class="table table-bordered table-striped mt-4">
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Resume</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for resume in resumes %}
+
+<tr>
+
+<td>
+
+{{ resume.id }}
+
+</td>
+
+<td>
+
+{{ resume.file_name }}
+
+</td>
+
+<td>
+
+<a href="/resume/{{resume.id}}"
+class="btn btn-primary btn-sm">
+
+View Analysis
+
+</a>
+
+<a href="/resume/delete/{{resume.id}}"
+class="btn btn-danger btn-sm"
+onclick="return confirm('Are you sure you want to delete this resume?')">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</body>
+
+</html>
