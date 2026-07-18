@@ -28,7 +28,15 @@ templates = Jinja2Templates(directory="src/templates")
 
 @app.get("/")
 async def home_page(request:Request):
-    return templates.TemplateResponse(request,"index.html", {"request": request})
+    user = None
+
+    if request.session.get("is_logged_in"):
+        email = request.session.get("current_email")
+
+        async with SessionLocal.begin() as session:
+            user_service = UserService(session)
+            user = await user_service.find_by_email(email)
+    return templates.TemplateResponse(request,"index.html", {"request": request, "user":user})
 
 @app.get("/signup")
 async def signup_page(request:Request, message:Optional[str]=None):
@@ -79,28 +87,18 @@ async def upload_resume(request: Request,file: UploadFile = File(...)):
         user = await user_service.find_by_email(email)
         resume_service = ResumeService(session)
         await resume_service.upload_resume(file=file,user_id=user.id)
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/dashboard", status_code=303)
 
 @app.get("/dashboard")
 async def dashboard(request: Request):
-
     email = request.session.get(
         "current_email"
     )
-
     async with SessionLocal.begin() as session:
-
         user_service = UserService(session)
-
-        user = await user_service.find_by_email(
-            email
-        )
-        dashboard_service = DashboardService(
-            session
-        )
-        resumes = await dashboard_service.get_dashboard(
-            user.id
-        )
+        user = await user_service.find_by_email(email)
+        dashboard_service = DashboardService(session)
+        resumes = await dashboard_service.get_dashboard(user.id)
     return templates.TemplateResponse(request,
         "dashboard.html",
         {
@@ -112,35 +110,21 @@ async def dashboard(request: Request):
 
 
 @app.get("/resume/{resume_id}")
-async def analysis_page(
-        request: Request,
-        resume_id: int
-):
+async def analysis_page(request: Request,resume_id: int):
     async with SessionLocal.begin() as session:
-        dashboard_service = DashboardService(
-            session
-        )
-        resume = await dashboard_service.get_resume_analysis(
-            resume_id
-        )
+        dashboard_service = DashboardService(session)
+        resume = await dashboard_service.get_resume_analysis(resume_id)
     return templates.TemplateResponse(request,"analysis.html",
 {"request": request,"resume": resume,"analysis": resume.analysis,"skills":resume.analysis.skills if resume.analysis else []
 })
 
 @app.get("/resume/delete/{resume_id}")
-async def delete_resume(
-        request: Request,
-        resume_id: int
-):
-
+async def delete_resume(request: Request,resume_id: int):
     async with SessionLocal.begin() as session:
-
         resume_service = ResumeService(session)
-
         await resume_service.delete_resume(
             resume_id
         )
-
     return RedirectResponse(
         "/dashboard",
         status_code=303

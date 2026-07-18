@@ -1,39 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload Resume</title>
-    {%include "__bootstrap.html"%}
+    <meta charset="UTF-8">
+    <title>Upload Resume - CV Intellect</title>
+    {% include "__bootstrap.html" %}
+    <style>
+        .upload-container {
+            min-height: calc(100vh - 120px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .upload-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        .upload-zone {
+            border: 2px dashed var(--upload-zone-border);
+            border-radius: 12px;
+            padding: 45px 20px;
+            text-align: center;
+            background: var(--upload-zone-bg);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover {
+            border-color: var(--color-primary);
+            background: var(--upload-zone-hover-bg);
+            box-shadow: 0 0 20px var(--upload-zone-hover-shadow);
+        }
+        .upload-zone input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover .upload-icon {
+            color: var(--color-primary);
+            transform: translateY(-5px);
+        }
+        .file-details {
+            display: none;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: var(--upload-details-bg);
+            border: 1px solid var(--upload-details-border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--upload-details-text);
+            align-items: center;
+            justify-content: center;
+        }
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--loading-overlay-bg);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            backdrop-filter: blur(8px);
+        }
+        .spinner-glow {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--spinner-border);
+            border-left-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 15px var(--glow-primary);
+            margin-bottom: 25px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+    </style>
 </head>
+<body>
+    {% include "__navigation.html" %}
+    
+    <div class="container upload-container">
+        <div class="glass-card upload-card animate-fade-in">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-file-arrow-up text-gradient mb-3" style="font-size: 2.5rem;"></i>
+                <h2>Upload Resume</h2>
+                <p class="text-muted small">Upload your resume in PDF format to start analysis</p>
+            </div>
+            
+            <form
+                id="uploadForm"
+                action="/resume/upload"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+                <div class="form-group mb-4">
+                    <div class="upload-zone" id="uploadZone">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon" id="primaryIcon"></i>
+                        <h5 class="mb-1" id="uploadTitle">Choose PDF file</h5>
+                        <p class="text-muted small mb-0" id="uploadSubtitle">or drag & drop it here</p>
+                        
+                        <input
+                            type="file"
+                            id="fileInput"
+                            name="file"
+                            accept=".pdf"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="file-details" id="fileDetails">
+                        <i class="fa-solid fa-file-pdf mr-2"></i>
+                        <span id="fileNameDisplay" class="font-weight-medium">filename.pdf</span>
+                    </div>
+                </div>
 
-<body class="bg-dark">
-{%include "__navigation.html"%}
+                <button class="btn btn-gradient btn-block py-3" type="submit" id="submitBtn">
+                    <i class="fa-solid fa-bolt mr-2"></i> Run AI Analysis
+                </button>
+            </form>
+        </div>
+    </div>
 
-<h2 class="text-light d-flex justify-content-center align-items-center">Upload Resume</h2>
+    <!-- Processing / Analyzing Screen Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-glow"></div>
+        <h3 class="loading-text text-gradient">Analyzing Your Profile</h3>
+        <p class="text-muted small text-center px-4" style="max-width: 320px;">
+            AI is extracting skills, calculating ATS scores, and generating recommendations. Please do not close or refresh this tab.
+        </p>
+    </div>
 
-<div class="container d-flex justify-content-center align-items-center">
-    <div class="card shadow p-4 bg-secondary text-light" style="width: 28rem;">
-    <form
-    action="/resume/upload"
-    method="POST"
-    enctype="multipart/form-data"
->
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadZone = document.getElementById('uploadZone');
+        const fileDetails = document.getElementById('fileDetails');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const uploadForm = document.getElementById('uploadForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const uploadTitle = document.getElementById('uploadTitle');
+        const uploadSubtitle = document.getElementById('uploadSubtitle');
+        const primaryIcon = document.getElementById('primaryIcon');
 
-<input
-    type="file"
-    name="file"
-    accept=".pdf"
-    required
->
+        // Update name display on file select
+        fileInput.addEventListener('change', function(e) {
+            if (fileInput.files.length > 0) {
+                const name = fileInput.files[0].name;
+                fileNameDisplay.textContent = name;
+                fileDetails.style.display = 'flex';
+                
+                // Customize dropzone content to show selected file
+                uploadTitle.textContent = "Change selected file";
+                uploadSubtitle.innerHTML = `Selected: <strong class="text-white">${name}</strong>`;
+                primaryIcon.className = "fa-solid fa-file-pdf upload-icon text-primary";
+            }
+        });
 
-<button class="btn btn-primary" type="submit">
+        // Drag events styling
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            }, false);
+        });
 
-Upload
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+            }, false);
+        });
 
-</button>
-
-</form>
-</div>
-</div>
-
+        // Form submit displays spinner overlay
+        uploadForm.addEventListener('submit', function(e) {
+            if (fileInput.files.length > 0) {
+                loadingOverlay.style.display = 'flex';
+            }
+        });
+    </script>
 </body>
 </html>

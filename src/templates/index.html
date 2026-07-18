@@ -2,13 +2,185 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Resume Analyser</title>
+    <title>CV Intellect - AI Resume Analyser</title>
     {% include "__bootstrap.html"%}
+    <style>
+        .hero-section {
+            padding: 80px 0 60px;
+        }
+        .feature-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--badge-accent-bg);
+            border: 1px solid var(--badge-accent-border);
+            color: var(--badge-accent-text);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+            color: var(--color-secondary);
+            border-color: var(--border-focus);
+        }
+        .cta-btn {
+            font-size: 1.1rem;
+            padding: 12px 30px;
+        }
+        .step-badge {
+            background: var(--badge-accent-bg);
+            color: var(--badge-accent-text);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-{%include "__navigation.html"%}
-<div>
-    <h1>Home Page</h1>
+{% include "__navigation.html" %}
+
+<div class="container animate-fade-in">
+    {% if user %}
+        <!-- Authenticated View -->
+        <div class="hero-section text-center">
+            <h1 class="display-4 font-weight-extrabold mb-3">
+                Welcome back, <span class="text-gradient">{{ user.name }}</span> 👋
+            </h1>
+            <p class="lead text-muted max-w-2xl mx-auto mb-5">
+                Ready to review another resume? Upload a new file or visit your dashboard to view past analyses.
+            </p>
+            
+            <div class="row justify-content-center mt-4">
+                <div class="col-md-5 mb-4">
+                    <div class="glass-card p-5 text-center h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="feature-icon mx-auto">
+                                <i class="fa-solid fa-file-arrow-up"></i>
+                            </div>
+                            <h3>Upload Resume</h3>
+                            <p class="text-muted mt-2">
+                                Upload a PDF resume to parse, extract keywords, and get comprehensive ATS grading reports.
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="/resume/upload" class="btn btn-gradient btn-block py-3">
+                                <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Start New Analysis
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-5 mb-4">
+                    <div class="glass-card p-5 text-center h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="feature-icon mx-auto">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <h3>Your Dashboard</h3>
+                            <p class="text-muted mt-2">
+                                View, compare, and manage all your uploaded resumes and historical analysis metrics.
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="/dashboard" class="btn btn-outline-glass btn-block py-3">
+                                <i class="fa-solid fa-table-list mr-2"></i> Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Guest View / Landing Page -->
+        <div class="hero-section text-center">
+            <div class="badge badge-pill py-2 px-3 mb-4" style="background: var(--badge-accent-bg); border: 1px solid var(--badge-accent-border); color: var(--badge-accent-text); font-weight: 500;">
+                <span class="text-gradient font-weight-bold"><i class="fa-solid fa-sparkles mr-1"></i> AI-Powered Analysis System</span>
+            </div>
+            <h1 class="display-3 font-weight-extrabold mb-3" style="line-height: 1.15;">
+                Optimize Your Resume for <br><span class="text-gradient">ATS Recruitment Engines</span>
+            </h1>
+            <p class="lead text-muted col-lg-8 mx-auto mb-5">
+                Simulate recruiter reviews, discover critical keyword gaps, and receive real-time, actionable suggestions to make your profile stand out.
+            </p>
+            
+            <div class="d-flex justify-content-center flex-wrap mb-5">
+                <a href="/signup" class="btn btn-gradient cta-btn mx-2 mb-3 shadow">
+                    <i class="fa-solid fa-rocket mr-2"></i> Analyze For Free
+                </a>
+                <a href="/signin" class="btn btn-outline-glass cta-btn mx-2 mb-3">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i> Sign In to Account
+                </a>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <h5>ATS Compatibility Score</h5>
+                    <p class="text-muted small mt-2">
+                        Get scored on formatting, keywords, structure, and key metrics mimicking actual ATS checkers.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    </div>
+                    <h5>Strengths & Weaknesses</h5>
+                    <p class="text-muted small mt-2">
+                        Receive a prioritized checklist detailing exactly what highlights your value and where you have gaps.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="glass-card p-4 h-100">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-tags"></i>
+                    </div>
+                    <h5>Skills Extractor</h5>
+                    <p class="text-muted small mt-2">
+                        Visualize mapped skills from your work experience to verify if core tech stacks are properly indexed.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Workflow Guide -->
+        <div class="glass-card p-5 mt-5 text-center mb-5">
+            <h3 class="mb-4">How It Works</h3>
+            <div class="row mt-4">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="step-badge mb-3">1</div>
+                    <h6>Create Account</h6>
+                    <p class="text-muted small mt-1">Register securely to manage and track multiple resumes over time.</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="step-badge mb-3">2</div>
+                    <h6>Upload Resume</h6>
+                    <p class="text-muted small mt-1">Drag and drop your PDF resume. Our AI extracts core fields instantly.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="step-badge mb-3">3</div>
+                    <h6>Review Reports</h6>
+                    <p class="text-muted small mt-1">Gain deep insights, score details, and actionable recommendations.</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
 </body>
 </html>

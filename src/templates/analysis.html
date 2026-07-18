@@ -1,163 +1,267 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-
-<title>Analysis</title>
-
-{% include "__bootstrap.html" %}
-
+    <meta charset="UTF-8">
+    <title>Analysis Report - {{ resume.file_name }}</title>
+    {% include "__bootstrap.html" %}
+    <style>
+        .report-header {
+            margin-top: 30px;
+            margin-bottom: 35px;
+        }
+        
+        /* Circular/Glow Score Meter */
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--score-circle-bg);
+            border: 4px solid var(--score-color);
+            box-shadow: 0 4px 15px var(--score-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .score-circle:hover {
+            transform: scale(1.05);
+        }
+        .score-number {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+        
+        /* Card Left Border Accents */
+        .card-strength {
+            border-left: 4px solid var(--success) !important;
+        }
+        .card-weakness {
+            border-left: 4px solid var(--danger) !important;
+        }
+        .card-recommendation {
+            border-left: 4px solid var(--warning) !important;
+        }
+        
+        /* Pre-wrap text layout styling */
+        .analysis-text {
+            white-space: pre-wrap;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--analysis-text-color);
+        }
+        
+        /* Mapped Skill Badge */
+        .skill-badge {
+            background: var(--skill-badge-bg);
+            border: 1px solid var(--skill-badge-border);
+            color: var(--skill-badge-text);
+            padding: 8px 14px;
+            margin: 4px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        .skill-badge:hover {
+            background: var(--skill-badge-hover-bg);
+            border-color: var(--skill-badge-hover-border);
+            transform: translateY(-1px);
+        }
+        
+        .metadata-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: var(--btn-outline-bg);
+            border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-right: 12px;
+            color: var(--metadata-icon-color);
+        }
+    </style>
 </head>
-
-<body class="bg-light">
-
-{% include "__navigation.html" %}
-
-<div class="container mt-5">
-
-<h2>
-
-{{resume.file_name}}
-
-</h2>
-
-<hr>
-
-<div class="card p-4">
-
-<h4>
-
-Overall Score
-
-</h4>
-
-<h2>
-
-{{analysis.overall_score}}
-
-</h2>
-
-<hr>
-
-<h4>
-
-ATS Score
-
-</h4>
-
-<h2>
-
-{{analysis.ats_score}}
-
-</h2>
-
-<hr>
-
-<h4>
-
-Summary
-
-</h4>
-
-<p>
-
-{{analysis.summary}}
-
-</p>
-
-<hr>
-
-<h4>
-
-Strengths
-
-</h4>
-
-<pre>
-
-{{analysis.strength}}
-
-</pre>
-
-<hr>
-
-<h4>
-
-Weaknesses
-
-</h4>
-
-<pre>
-
-{{analysis.weakness}}
-
-</pre>
-
-<hr>
-
-<h4>
-
-Recommendations
-
-</h4>
-
-<pre>
-
-{{analysis.recommendation}}
-
-</pre>
-
-<hr>
-
-<h4>
-
-Experience Level
-
-</h4>
-
-<p>
-
-{{analysis.experience_level}}
-
-</p>
-
-<hr>
-
-<h4>
-
-Education
-
-</h4>
-
-<p>
-
-{{analysis.education}}
-
-</p>
-
-<hr>
-
-<h4>
-
-Skills
-
-</h4>
-
-{% for skill in skills %}
-
-<span class="badge bg-success">
-
-{{skill.skill_name}}
-
-</span>
-
-{% endfor %}
-
-</div>
-
-</div>
-
+<body>
+    {% include "__navigation.html" %}
+
+    <div class="container animate-fade-in mb-5">
+        
+        <!-- Header -->
+        <div class="report-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div>
+                <a href="/dashboard" class="text-gradient font-weight-semibold text-decoration-none small d-inline-flex align-items-center mb-2">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Back to Dashboard
+                </a>
+                <h1 class="h3 d-flex align-items-center mb-1">
+                    <i class="fa-solid fa-file-invoice text-primary mr-2" style="font-size: 1.6rem;"></i>
+                    {{ resume.file_name }}
+                </h1>
+                <p class="text-muted small mb-0">Detailed parser analysis and optimization breakdown.</p>
+            </div>
+            
+            <div class="mt-3 mt-md-0">
+                <a 
+                    href="/resume/delete/{{ resume.id }}" 
+                    class="btn btn-outline-glass text-danger"
+                    onclick="return confirm('Are you sure you want to delete this resume?')"
+                    style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2);"
+                >
+                    <i class="fa-solid fa-trash-can mr-2"></i> Delete Report
+                </a>
+            </div>
+        </div>
+
+        <!-- Scores and Executive Summary Section -->
+        <div class="row mb-4">
+            
+            <!-- Executive Summary Card -->
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="mb-3 d-flex align-items-center">
+                        <i class="fa-solid fa-clipboard-list text-primary mr-2" style="font-size: 1.2rem;"></i>
+                        Executive Summary
+                    </h4>
+                    <hr style="border-top: 1px solid var(--border-color); margin-top: 0;">
+                    <p class="analysis-text" style="color: var(--text-main); font-size: 1rem;">
+                        {{ analysis.summary }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Score Cards -->
+            <div class="col-lg-4">
+                <div class="row h-100">
+                    <div class="col-6 col-lg-12 mb-4 mb-lg-3">
+                        <div class="glass-card p-3 text-center d-flex flex-column align-items-center justify-content-center h-100">
+                            <span class="text-muted small font-weight-semibold mb-2">OVERALL SCORE</span>
+                            <div class="score-circle" style="--score-color: var(--color-primary); --score-glow: var(--glow-primary);">
+                                <span class="score-number">{{ analysis.overall_score }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-6 col-lg-12">
+                        <div class="glass-card p-3 text-center d-flex flex-column align-items-center justify-content-center h-100">
+                            <span class="text-muted small font-weight-semibold mb-2">ATS GRADE</span>
+                            <div class="score-circle" style="--score-color: var(--success); --score-glow: rgba(16, 185, 129, 0.15);">
+                                <span class="score-number">{{ analysis.ats_score }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strengths & Weaknesses Section -->
+        <div class="row mb-4">
+            <!-- Strengths Card -->
+            <div class="col-md-6 mb-4 mb-md-0">
+                <div class="glass-card card-strength p-4 h-100">
+                    <h4 class="mb-3 text-success d-flex align-items-center">
+                        <i class="fa-solid fa-circle-check mr-2"></i>
+                        Strengths
+                    </h4>
+                    <hr style="border-top: 1px solid rgba(16, 185, 129, 0.15); margin-top: 0;">
+                    <div class="analysis-text">
+                        {{ analysis.strength }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weaknesses Card -->
+            <div class="col-md-6">
+                <div class="glass-card card-weakness p-4 h-100">
+                    <h4 class="mb-3 text-danger d-flex align-items-center">
+                        <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                        Weaknesses
+                    </h4>
+                    <hr style="border-top: 1px solid rgba(239, 68, 68, 0.15); margin-top: 0;">
+                    <div class="analysis-text">
+                        {{ analysis.weakness }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Card -->
+        <div class="glass-card card-recommendation p-4 mb-4">
+            <h4 class="mb-3 text-warning d-flex align-items-center">
+                <i class="fa-solid fa-star-of-life mr-2"></i>
+                Recommendations
+            </h4>
+            <hr style="border-top: 1px solid rgba(245, 158, 11, 0.15); margin-top: 0;">
+            <div class="analysis-text">
+                {{ analysis.recommendation }}
+            </div>
+        </div>
+
+        <!-- Metadata Section (Experience, Education, Skills) -->
+        <div class="row">
+            
+            <!-- Bio/Metadata -->
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="mb-3 d-flex align-items-center">
+                        <i class="fa-solid fa-user-tie text-primary mr-2" style="font-size: 1.2rem;"></i>
+                        Profile Details
+                    </h4>
+                    <hr style="border-top: 1px solid var(--border-color); margin-top: 0;">
+                    
+                    <div class="d-flex align-items-center mb-4 mt-3">
+                        <div class="metadata-icon">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small d-block font-weight-medium">Experience Level</span>
+                            <span class="font-weight-semibold text-white" style="font-size: 1.05rem;">{{ analysis.experience_level }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="metadata-icon">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <span class="text-muted small d-block font-weight-medium">Education</span>
+                            <span class="font-weight-semibold text-white" style="font-size: 1.05rem;">{{ analysis.education }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapped Skills -->
+            <div class="col-lg-6">
+                <div class="glass-card p-4 h-100">
+                    <h4 class="mb-3 d-flex align-items-center">
+                        <i class="fa-solid fa-tags text-success mr-2" style="font-size: 1.2rem;"></i>
+                        Mapped Skills
+                    </h4>
+                    <hr style="border-top: 1px solid var(--border-color); margin-top: 0;">
+                    
+                    <div class="d-flex flex-wrap pt-2">
+                        {% if skills %}
+                            {% for skill in skills %}
+                                <div class="skill-badge">
+                                    <i class="fa-solid fa-tag mr-1.5 small"></i>
+                                    {{ skill.skill_name }}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted small">No specific skills extracted.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
 </body>
-
 </html>

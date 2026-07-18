@@ -1,12 +1,53 @@
-<html>
-   <head>
-       <title>Error page</title>
-       {%include "__bootstrap.html"%}
-   </head>
-   <body>
-      {%include "__navigation.html"%}
-      <div class="container mt-5">
-          <h1 class="bg-danger text-center p-5">{{exc}}</h1>
-      </div>
-   </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Error - CV Intellect</title>
+    {% include "__bootstrap.html" %}
+    <style>
+        .error-container {
+            min-height: calc(100vh - 120px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-card {
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 30px;
+            text-align: center;
+            border-top: 4px solid var(--danger) !important;
+        }
+        .error-icon {
+            font-size: 3.5rem;
+            color: var(--danger);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% include "__navigation.html" %}
+    
+    <div class="container error-container">
+        <div class="glass-card error-card animate-fade-in">
+            <i class="fa-solid fa-circle-xmark error-icon"></i>
+            <h2 class="mb-2">Something Went Wrong</h2>
+            <p class="text-muted small mb-4">We encountered an issue while processing your request.</p>
+            
+            <div class="alert text-center border-0 py-3 px-4 mb-4 rounded-lg text-danger" style="background: rgba(239, 68, 68, 0.08); font-family: monospace; font-size: 0.9rem; border: 1px solid rgba(239, 68, 68, 0.15) !important;">
+                {{ exc }}
+            </div>
+            
+            <div class="d-flex justify-content-center">
+                <a href="/" class="btn btn-gradient mr-2">
+                    <i class="fa-solid fa-house mr-1"></i> Home
+                </a>
+                <a href="/dashboard" class="btn btn-outline-glass">
+                    <i class="fa-solid fa-chart-line mr-1"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
