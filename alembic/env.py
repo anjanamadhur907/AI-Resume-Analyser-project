@@ -1,5 +1,7 @@
 from logging.config import fileConfig
 import asyncio
+import os
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
@@ -11,9 +13,24 @@ from src.model.user import User
 from src.model.skill import Skill
 from src.model.resume import Resume
 from src.model.analysis import Analysis
+
+load_dotenv()
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+db_url = os.getenv("DB_URL")
+if db_url:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif db_url.startswith("postgresql://"):
+        db_url = db_url.replace("postgresql+asyncpg://", "postgresql+asyncpg://", 1)
+
+    config.set_main_option(
+        "sqlalchemy.url",
+        db_url.replace("%", "%%")
+    )
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -33,18 +50,8 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
+    url = db_url
 
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
-    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
