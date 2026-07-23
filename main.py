@@ -49,11 +49,11 @@ async def signup(request:Request, name:str=Form(...), email:str=Form(...), passw
         user_service = UserService(session)
         user = await user_service.create_user(user)
         print("User created successfully")
-        return RedirectResponse("/signup?message=User created successfully", status_code=303)
+        return RedirectResponse("/signin?message=Account created successfully! Please sign in.", status_code=303)
 
 @app.get("/signin")
-async def signin_page(request:Request):
-    return templates.TemplateResponse(request,"signin.html", {"request": request})
+async def signin_page(request:Request, message:Optional[str]=None):
+    return templates.TemplateResponse(request,"signin.html", {"request": request, "message":message})
 
 @app.post("/signin")
 async def signin(request:Request, email:str=Form(...), password:str=Form(...)):

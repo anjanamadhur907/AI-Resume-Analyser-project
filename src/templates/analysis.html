@@ -10,27 +10,61 @@
             margin-bottom: 35px;
         }
         
-        /* Circular/Glow Score Meter */
-        .score-circle {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--score-circle-bg);
-            border: 4px solid var(--score-color);
-            box-shadow: 0 4px 15px var(--score-glow);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Scores Display UI */
+        .score-card-box {
+            background: var(--bg-surface);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
         }
-        .score-circle:hover {
-            transform: scale(1.05);
+        .score-card-box:hover {
+            border-color: var(--border-color-hover);
+            box-shadow: var(--card-hover-shadow);
         }
-        .score-number {
+        .score-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--score-circle-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+            margin: 6px auto;
+        }
+        .score-circle:hover {
+            transform: scale(1.04);
+        }
+        .score-circle.primary-glow {
+            border: 3.5px solid var(--color-primary);
+            box-shadow: 0 0 18px var(--glow-primary);
+        }
+        .score-circle.success-glow {
+            border: 3.5px solid var(--success);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.2);
+        }
+        .score-val {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 2.1rem;
+            font-size: 1.75rem;
             font-weight: 800;
             color: var(--text-main);
+            line-height: 1;
+        }
+        .score-max {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-top: 2px;
+        }
+        .score-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            text-transform: uppercase;
         }
         
         /* Card Left Border Accents */
@@ -44,13 +78,43 @@
             border-left: 4px solid var(--warning) !important;
         }
         
-        /* Pre-wrap text layout styling */
-        .analysis-text {
-            white-space: pre-wrap;
+        /* Analysis Text & Lists Formatting */
+        .analysis-summary-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px 22px;
+        }
+        .analysis-summary-text {
             font-family: 'Inter', sans-serif;
+            font-size: 0.98rem;
+            line-height: 1.75;
+            color: var(--text-main);
+            text-align: left;
+            margin-bottom: 0;
+        }
+        
+        .analysis-item-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .analysis-item-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 12px;
             font-size: 0.95rem;
-            line-height: 1.7;
-            color: var(--analysis-text-color);
+            line-height: 1.65;
+            color: var(--text-main);
+        }
+        .analysis-item-list li:last-child {
+            margin-bottom: 0;
+        }
+        .analysis-item-list li i {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            font-size: 1rem;
         }
         
         /* Mapped Skill Badge */
@@ -118,41 +182,39 @@
             </div>
         </div>
 
-        <!-- Scores and Executive Summary Section -->
+        <!-- Scores and Summary Section -->
         <div class="row mb-4">
             
-            <!-- Executive Summary Card -->
+            <!-- Summary Card -->
             <div class="col-lg-8 mb-4 mb-lg-0">
-                <div class="glass-card p-4 h-100">
+                <div class="glass-card p-4 h-100 d-flex flex-column">
                     <h4 class="mb-3 d-flex align-items-center">
                         <i class="fa-solid fa-clipboard-list text-primary mr-2" style="font-size: 1.2rem;"></i>
-                        Executive Summary
+                        Summary
                     </h4>
                     <hr style="border-top: 1px solid var(--border-color); margin-top: 0;">
-                    <p class="analysis-text" style="color: var(--text-main); font-size: 1rem;">
-                        {{ analysis.summary }}
-                    </p>
+                    <div class="analysis-summary-box flex-fill">
+                        <p class="analysis-summary-text">{% if analysis and analysis.summary %}{{ analysis.summary.strip() }}{% else %}No summary available.{% endif %}</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Score Cards -->
             <div class="col-lg-4">
-                <div class="row h-100">
-                    <div class="col-6 col-lg-12 mb-4 mb-lg-3">
-                        <div class="glass-card p-3 text-center d-flex flex-column align-items-center justify-content-center h-100">
-                            <span class="text-muted small font-weight-semibold mb-2">OVERALL SCORE</span>
-                            <div class="score-circle" style="--score-color: var(--color-primary); --score-glow: var(--glow-primary);">
-                                <span class="score-number">{{ analysis.overall_score }}</span>
-                            </div>
+                <div class="d-flex flex-column h-100 justify-content-between">
+                    <div class="glass-card score-card-box p-3 text-center mb-3 mb-lg-3 flex-fill d-flex flex-column align-items-center justify-content-center">
+                        <span class="score-label">OVERALL SCORE</span>
+                        <div class="score-circle primary-glow">
+                            <span class="score-val">{% if analysis and analysis.overall_score is not none %}{{ "%.0f"|format(analysis.overall_score) }}{% else %}0{% endif %}</span>
+                            <span class="score-max">/ 100</span>
                         </div>
                     </div>
                     
-                    <div class="col-6 col-lg-12">
-                        <div class="glass-card p-3 text-center d-flex flex-column align-items-center justify-content-center h-100">
-                            <span class="text-muted small font-weight-semibold mb-2">ATS GRADE</span>
-                            <div class="score-circle" style="--score-color: var(--success); --score-glow: rgba(16, 185, 129, 0.15);">
-                                <span class="score-number">{{ analysis.ats_score }}</span>
-                            </div>
+                    <div class="glass-card score-card-box p-3 text-center flex-fill d-flex flex-column align-items-center justify-content-center">
+                        <span class="score-label">ATS GRADE</span>
+                        <div class="score-circle success-glow">
+                            <span class="score-val">{% if analysis and analysis.ats_score is not none %}{{ "%.0f"|format(analysis.ats_score) }}{% else %}0{% endif %}</span>
+                            <span class="score-max">/ 100</span>
                         </div>
                     </div>
                 </div>
@@ -169,9 +231,21 @@
                         Strengths
                     </h4>
                     <hr style="border-top: 1px solid rgba(16, 185, 129, 0.15); margin-top: 0;">
-                    <div class="analysis-text">
-                        {{ analysis.strength }}
-                    </div>
+                    {% if analysis and analysis.strength %}
+                        <ul class="analysis-item-list">
+                            {% for line in analysis.strength.split('\n') %}
+                                {% set clean_line = line.strip().lstrip('-•*1234567890. ').strip() %}
+                                {% if clean_line %}
+                                    <li>
+                                        <i class="fa-solid fa-circle-check text-success"></i>
+                                        <span>{{ clean_line }}</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted small mb-0">No strengths recorded.</p>
+                    {% endif %}
                 </div>
             </div>
 
@@ -183,9 +257,21 @@
                         Weaknesses
                     </h4>
                     <hr style="border-top: 1px solid rgba(239, 68, 68, 0.15); margin-top: 0;">
-                    <div class="analysis-text">
-                        {{ analysis.weakness }}
-                    </div>
+                    {% if analysis and analysis.weakness %}
+                        <ul class="analysis-item-list">
+                            {% for line in analysis.weakness.split('\n') %}
+                                {% set clean_line = line.strip().lstrip('-•*1234567890. ').strip() %}
+                                {% if clean_line %}
+                                    <li>
+                                        <i class="fa-solid fa-circle-xmark text-danger"></i>
+                                        <span>{{ clean_line }}</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted small mb-0">No weaknesses recorded.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -193,13 +279,25 @@
         <!-- Recommendations Card -->
         <div class="glass-card card-recommendation p-4 mb-4">
             <h4 class="mb-3 text-warning d-flex align-items-center">
-                <i class="fa-solid fa-star-of-life mr-2"></i>
+                <i class="fa-solid fa-lightbulb mr-2"></i>
                 Recommendations
             </h4>
             <hr style="border-top: 1px solid rgba(245, 158, 11, 0.15); margin-top: 0;">
-            <div class="analysis-text">
-                {{ analysis.recommendation }}
-            </div>
+            {% if analysis and analysis.recommendation %}
+                <ul class="analysis-item-list">
+                    {% for line in analysis.recommendation.split('\n') %}
+                        {% set clean_line = line.strip().lstrip('-•*1234567890. ').strip() %}
+                        {% if clean_line %}
+                            <li>
+                                <i class="fa-solid fa-lightbulb text-warning"></i>
+                                <span>{{ clean_line }}</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted small mb-0">No recommendations recorded.</p>
+            {% endif %}
         </div>
 
         <!-- Metadata Section (Experience, Education, Skills) -->
@@ -220,7 +318,7 @@
                         </div>
                         <div>
                             <span class="text-muted small d-block font-weight-medium">Experience Level</span>
-                            <span class="font-weight-semibold text-white" style="font-size: 1.05rem;">{{ analysis.experience_level }}</span>
+                            <span class="font-weight-semibold text-white" style="font-size: 1.05rem;">{{ analysis.experience_level if analysis and analysis.experience_level else 'N/A' }}</span>
                         </div>
                     </div>
                     
@@ -230,7 +328,7 @@
                         </div>
                         <div>
                             <span class="text-muted small d-block font-weight-medium">Education</span>
-                            <span class="font-weight-semibold text-white" style="font-size: 1.05rem;">{{ analysis.education }}</span>
+                            <span class="font-weight-semibold text-white" style="font-size: 1.05rem;">{{ analysis.education if analysis and analysis.education else 'N/A' }}</span>
                         </div>
                     </div>
                 </div>
@@ -254,7 +352,7 @@
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <p class="text-muted small">No specific skills extracted.</p>
+                            <p class="text-muted small mb-0">No specific skills extracted.</p>
                         {% endif %}
                     </div>
                 </div>
