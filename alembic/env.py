@@ -14,7 +14,7 @@ from src.model.skill import Skill
 from src.model.resume import Resume
 from src.model.analysis import Analysis
 
-load_dotenv()
+load_dotenv(override=True)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,7 +25,7 @@ if db_url:
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
     elif db_url.startswith("postgresql://"):
-        db_url = db_url.replace("postgresql+asyncpg://", "postgresql+asyncpg://", 1)
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
     config.set_main_option(
         "sqlalchemy.url",
@@ -72,10 +72,15 @@ def do_run_migrations(connection):
         context.run_migrations()
 
 async def run_migrations_online():
+    connect_args = {}
+    if db_url and ("pooler.supabase.com" in db_url or ":6543" in db_url):
+        connect_args = {"statement_cache_size": 0, "prepared_statement_cache_size": 0}
+
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args=connect_args,
     )
 
     async with connectable.connect() as connection:
